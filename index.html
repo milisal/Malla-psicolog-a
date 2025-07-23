@@ -14,7 +14,7 @@
       --completed-bg: #e2f5e9;
       --locked-bg: #f8d2da;
       --tooltip-bg: #c94a63;
-      --check-color-light: #b3365c; /* rosa intenso claro */
+      --check-color-light: #b3365c;
     }
 
     body.dark-mode {
@@ -26,7 +26,7 @@
       --completed-bg: #4a5a4f;
       --locked-bg: #723244;
       --tooltip-bg: #ae3658;
-      --check-color-dark: #7a1839; /* bordo intenso oscuro */
+      --check-color-dark: #7a1839;
     }
 
     body {
@@ -40,7 +40,7 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding-top: 70px; /* espacio para botón fijo */
+      padding-top: 70px;
     }
 
     h1 {
@@ -53,8 +53,9 @@
       position: fixed;
       top: 20px;
       right: 20px;
-      margin-bottom: 0;
       z-index: 1000;
+      display: flex;
+      gap: 10px;
     }
 
     .toggle-container button {
@@ -102,26 +103,20 @@
       transition: background-color 0.3s, border-color 0.3s, color 0.3s;
     }
 
-    /* Colores oscuros para columnas principales */
-    .column.cbc {
-      background-color: #d17a91;
-      border-color: #b74e69;
-      color: white;
-    }
-    .column.formacion-general {
-      background-color: #ca7891;
-      border-color: #a14663;
-      color: white;
-    }
-    .column.formacion-profesional {
-      background-color: #b66584;
-      border-color: #8d3a57;
-      color: white;
-    }
+    .column.cbc,
+    .column.formacion-general,
+    .column.formacion-profesional,
     .column.requisitos-de-tesis {
-      background-color: #a45174;
-      border-color: #76284a;
-      color: white;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+      border: 3px solid var(--tooltip-bg);
+      background-image: linear-gradient(135deg, rgba(255, 182, 193, 0.2), rgba(255, 105, 180, 0.2));
+    }
+
+    body.dark-mode .column.cbc,
+    body.dark-mode .column.formacion-general,
+    body.dark-mode .column.formacion-profesional,
+    body.dark-mode .column.requisitos-de-tesis {
+      background-image: linear-gradient(135deg, rgba(139, 0, 45, 0.2), rgba(90, 0, 30, 0.2));
     }
 
     .column h2 {
@@ -141,7 +136,6 @@
       font-weight: 500;
       cursor: pointer;
       border: 1px solid var(--border-color);
-      transition: background 0.2s, color 0.2s;
       color: var(--primary-text);
       user-select: none;
     }
@@ -149,7 +143,6 @@
     .course.completed {
       background-color: var(--completed-bg);
       text-decoration: line-through;
-      /* color del texto no cambia aquí para mantener contraste */
     }
 
     .course.locked {
@@ -199,11 +192,37 @@
 <body>
   <div class="toggle-container">
     <button id="darkModeBtn">Alternar modo oscuro</button>
+    <button id="colorBtn">🎨 Personalizar colores</button>
   </div>
-
   <h1>Malla Curricular – Lic. en Psicología</h1>
   <div class="progress" id="tesisProgress"></div>
   <div class="grid" id="curriculum"></div>
+
+  <div id="colorControls" style="display:none; position:fixed; top:80px; right:20px; background:white; border:1px solid #ccc; padding:10px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.2); z-index:1000;">
+    <label>Color de fondo:<input type="color" id="bgColorPicker"></label><br>
+    <label>Color columnas:<input type="color" id="columnBgPicker"></label><br>
+    <label>Color texto:<input type="color" id="textColorPicker"></label>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.getElementById("colorBtn").addEventListener("click", () => {
+      const panel = document.getElementById("colorControls");
+      panel.style.display = panel.style.display === "none" ? "block" : "none";
+    });
+
+    document.getElementById("bgColorPicker").addEventListener("input", (e) => {
+      document.documentElement.style.setProperty('--bg-color', e.target.value);
+    });
+
+    document.getElementById("columnBgPicker").addEventListener("input", (e) => {
+      document.documentElement.style.setProperty('--column-bg', e.target.value);
+    });
+
+    document.getElementById("textColorPicker").addEventListener("input", (e) => {
+      document.documentElement.style.setProperty('--primary-text', e.target.value);
+    });
 
   <script>
     const data = {
@@ -273,104 +292,101 @@
 
     const completed = JSON.parse(localStorage.getItem('completedCourses') || '[]');
 
-    function isCompleted(name) {
-      return completed.includes(name);
-    }
+function isCompleted(name) {
+  return completed.includes(name);
+}
 
-    function checkRequirements(reqs) {
-      if (!reqs || reqs.length === 0) return true;
-      return reqs.every(r => {
-        if (r === 'CBC') {
-          return data['CBC'].every(isCompleted);
+function checkRequirements(reqs) {
+  if (!reqs || reqs.length === 0) return true;
+  return reqs.every(r => {
+    if (r === 'CBC') {
+      return data['CBC'].every(isCompleted);
+    } else {
+      return isCompleted(r);
+    }
+  });
+}
+
+function updateTesisProgress() {
+  const tesis = data['Formación Profesional'].find(c => c.name === 'Requisito Tesis');
+  if (!tesis) {
+    document.getElementById('tesisProgress').textContent = '';
+    return;
+  }
+  const total = tesis.reqs.length;
+  const done = tesis.reqs.filter(isCompleted).length;
+  document.getElementById('tesisProgress').textContent = `Progreso hacia Tesis: ${done}/${total} materias completadas`;
+}
+
+function render() {
+  updateTesisProgress();
+  const container = document.getElementById('curriculum');
+  container.innerHTML = '';
+
+  for (const [cycle, courses] of Object.entries(data)) {
+    const col = document.createElement('div');
+    let className = cycle.toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, '-');
+    col.className = 'column ' + className;
+    col.innerHTML = `<h2>${cycle}</h2>`;
+
+    courses.forEach(course => {
+      const name = typeof course === 'string' ? course : course.name;
+      const reqs = typeof course === 'string' ? [] : course.reqs;
+      const isDone = isCompleted(name);
+      const unlocked = checkRequirements(reqs);
+
+      const div = document.createElement('div');
+      div.className = 'course';
+      if (isDone) div.classList.add('completed');
+      if (!unlocked) div.classList.add('locked');
+
+      div.innerHTML = `${name}${isDone ? '<span class="checkmark">✓</span>' : ''}`;
+
+      if (!unlocked && reqs.length) {
+        const tooltip = document.createElement('span');
+        tooltip.className = 'tooltip';
+        const unmet = reqs.filter(r =>
+          r === 'CBC' ? !data['CBC'].every(isCompleted) : !isCompleted(r)
+        );
+        tooltip.textContent = `Falta: ${unmet.join(', ')}`;
+        div.appendChild(tooltip);
+      }
+
+      div.onclick = () => {
+        if (!unlocked) return;
+        if (isDone) {
+          completed.splice(completed.indexOf(name), 1);
         } else {
-          return isCompleted(r);
+          completed.push(name);
         }
-      });
-    }
+        localStorage.setItem('completedCourses', JSON.stringify(completed));
+        render();
+      };
 
-    function updateTesisProgress() {
-      const tesis = data['Formación Profesional'].find(c => c.name === 'Requisito Tesis');
-      if (!tesis) {
-        document.getElementById('tesisProgress').textContent = '';
-        return;
-      }
-      const total = tesis.reqs.length;
-      const done = tesis.reqs.filter(isCompleted).length;
-      document.getElementById('tesisProgress').textContent = `Progreso hacia Tesis: ${done}/${total} materias completadas`;
-    }
+      col.appendChild(div);
+    });
 
-    function render() {
-      updateTesisProgress();
-      const container = document.getElementById('curriculum');
-      container.innerHTML = '';
+    container.appendChild(col);
+  }
+}
 
-      for (const [cycle, courses] of Object.entries(data)) {
-        const col = document.createElement('div');
-        // Crear clase para la columna sin acentos y espacios convertidos
-        let className = cycle.toLowerCase()
-          .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-          .replace(/\s+/g, '-');
-        col.className = 'column ' + className;
-        col.innerHTML = `<h2>${cycle}</h2>`;
+function toggleDarkMode() {
+  document.body.classList.toggle('dark-mode');
+  localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+  document.getElementById('darkModeBtn').textContent = document.body.classList.contains('dark-mode') ? 'Modo claro' : 'Modo oscuro';
+}
 
-        courses.forEach(course => {
-          const name = typeof course === 'string' ? course : course.name;
-          const reqs = typeof course === 'string' ? [] : course.reqs;
-          const isDone = isCompleted(name);
-          const unlocked = checkRequirements(reqs);
+// Restaurar modo oscuro si estaba activado
+if (localStorage.getItem('darkMode') === 'true') {
+  document.body.classList.add('dark-mode');
+}
 
-          const div = document.createElement('div');
-          div.className = 'course';
-          if (isDone) div.classList.add('completed');
-          if (!unlocked) div.classList.add('locked');
+document.getElementById('darkModeBtn').textContent =
+  document.body.classList.contains('dark-mode') ? 'Modo claro' : 'Modo oscuro';
 
-          div.innerHTML = `${name}${isDone ? '<span class="checkmark">✓</span>' : ''}`;
+document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
 
-          if (!unlocked && reqs.length) {
-            const tooltip = document.createElement('span');
-            tooltip.className = 'tooltip';
-            const unmet = reqs.filter(r => r === 'CBC' ? !data['CBC'].every(isCompleted) : !isCompleted(r));
-            tooltip.textContent = `Falta: ${unmet.join(', ')}`;
-            div.appendChild(tooltip);
-          }
-
-          div.onclick = () => {
-            if (!unlocked) return;
-            if (isDone) {
-              completed.splice(completed.indexOf(name), 1);
-            } else {
-              completed.push(name);
-            }
-            localStorage.setItem('completedCourses', JSON.stringify(completed));
-            render();
-          };
-
-          col.appendChild(div);
-        });
-
-        container.appendChild(col);
-      }
-    }
-
-    function toggleDarkMode() {
-      document.body.classList.toggle('dark-mode');
-      localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-      // Cambiar texto botón
-      const btn = document.getElementById('darkModeBtn');
-      btn.textContent = document.body.classList.contains('dark-mode') ? 'Modo claro' : 'Modo oscuro';
-    }
-
-    // Restaurar modo oscuro si estaba activado
-    if (localStorage.getItem('darkMode') === 'true') {
-      document.body.classList.add('dark-mode');
-    }
-
-    // Ajustar texto botón al cargar
-    document.getElementById('darkModeBtn').textContent = document.body.classList.contains('dark-mode') ? 'Modo claro' : 'Modo oscuro';
-
-    document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
-
-    render();
-  </script>
-</body>
-</html>
+render();
+    

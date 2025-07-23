@@ -14,7 +14,7 @@
       --completed-bg: #e2f5e9;
       --locked-bg: #f8d2da;
       --tooltip-bg: #c94a63;
-      --check-color-light: #b3365c; /* rosa intenso claro */
+      --check-color-light: #b3365c;
     }
 
     body.dark-mode {
@@ -26,7 +26,7 @@
       --completed-bg: #4a5a4f;
       --locked-bg: #723244;
       --tooltip-bg: #ae3658;
-      --check-color-dark: #7a1839; /* bordo intenso oscuro */
+      --check-color-dark: #7a1839;
     }
 
     body {
@@ -40,7 +40,7 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding-top: 70px; /* espacio para botón fijo */
+      padding-top: 100px;
     }
 
     h1 {
@@ -53,7 +53,6 @@
       position: fixed;
       top: 20px;
       right: 20px;
-      margin-bottom: 0;
       z-index: 1000;
     }
 
@@ -66,10 +65,53 @@
       cursor: pointer;
       font-weight: 600;
       transition: background-color 0.3s;
+      margin-bottom: 10px;
     }
 
     .toggle-container button:hover {
       background-color: #a23650;
+    }
+
+    .color-panel {
+      position: fixed;
+      top: 100px;
+      right: 20px;
+      background: white;
+      border: 2px solid var(--border-color);
+      border-radius: 16px;
+      padding: 16px;
+      z-index: 1000;
+      width: 280px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.9rem;
+    }
+
+    .color-panel input[type="color"] {
+      width: 100%;
+      height: 30px;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .color-panel label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .color-panel button {
+      padding: 6px 12px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 5px;
+      background-color: var(--tooltip-bg);
+      color: white;
     }
 
     .progress {
@@ -102,109 +144,41 @@
       transition: background-color 0.3s, border-color 0.3s, color 0.3s;
     }
 
-    /* Colores oscuros para columnas principales */
-    .column.cbc {
-      background-color: #d17a91;
-      border-color: #b74e69;
-      color: white;
-    }
-    .column.formacion-general {
-      background-color: #ca7891;
-      border-color: #a14663;
-      color: white;
-    }
-    .column.formacion-profesional {
-      background-color: #b66584;
-      border-color: #8d3a57;
-      color: white;
-    }
-    .column.requisitos-de-tesis {
-      background-color: #a45174;
-      border-color: #76284a;
-      color: white;
-    }
-
     .column h2 {
-      text-align: center;
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 12px;
-    }
-
-    .course {
-      background-color: var(--course-bg);
-      border-radius: 12px;
-      padding: 10px;
-      margin: 8px 0;
       position: relative;
-      font-size: 0.95rem;
-      font-weight: 500;
-      cursor: pointer;
-      border: 1px solid var(--border-color);
-      transition: background 0.2s, color 0.2s;
-      color: var(--primary-text);
-      user-select: none;
-    }
-
-    .course.completed {
-      background-color: var(--completed-bg);
-      text-decoration: line-through;
-      /* color del texto no cambia aquí para mantener contraste */
-    }
-
-    .course.locked {
-      background-color: var(--locked-bg);
-      opacity: 0.7;
-      cursor: default;
-      color: #999;
-      border-color: #ccc;
-    }
-
-    .course .tooltip {
-      visibility: hidden;
-      opacity: 0;
-      background-color: var(--tooltip-bg);
-      color: white;
-      padding: 6px 12px;
-      border-radius: 999px;
-      position: absolute;
-      bottom: 125%;
-      left: 50%;
-      transform: translateX(-50%);
-      white-space: nowrap;
-      transition: opacity 0.3s;
-      font-size: 0.8rem;
-      z-index: 10;
-      pointer-events: none;
-    }
-
-    .course:hover .tooltip {
-      visibility: visible;
-      opacity: 1;
-    }
-
-    .checkmark {
-      float: right;
-      font-weight: bold;
-      user-select: none;
-      color: var(--check-color-light);
-      transition: color 0.3s;
-    }
-
-    body.dark-mode .checkmark {
-      color: var(--check-color-dark);
+      padding: 10px;
+      background-color: rgba(255, 255, 255, 0.15);
+      border: 2px solid var(--primary-text);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      text-align: center;
     }
   </style>
 </head>
 <body>
   <div class="toggle-container">
     <button id="darkModeBtn">Alternar modo oscuro</button>
+    <button id="colorBtn">🎨 Personalizar colores</button>
   </div>
-
-  <h1>Malla Curricular – Lic. en Psicología</h1>
-  <div class="progress" id="tesisProgress"></div>
-  <div class="grid" id="curriculum"></div>
-
+  <div class="color-panel" id="colorPanel">
+    <div class="color-toggle">
+      <label>
+        Modo:
+        <select id="modeSelector">
+          <option value="light">Claro</option>
+          <option value="dark">Oscuro</option>
+        </select>
+      </label>
+    </div>
+    <label>Fondo: <input type="color" id="bg-color"></label>
+    <label>Columna: <input type="color" id="column-bg"></label>
+    <label>Texto: <input type="color" id="primary-text"></label>
+    <label>Materia: <input type="color" id="course-bg"></label>
+    <label>Completado: <input type="color" id="completed-bg"></label>
+    <label>Bloqueado: <input type="color" id="locked-bg"></label>
+    <button onclick="saveCustomColors()">Guardar</button>
+    <button onclick="resetColors()">Restablecer</button>
+  </div>
   <script>
     const data = {
       'CBC': [
@@ -239,22 +213,22 @@
         { name: 'Psicología Jurídica', reqs: ['T. Y T de Explor. Diag. Ps. Mód II'] },
         { name: 'Psicoterapias', reqs: ['T. Y T de Explor. Diag. Ps. Mód II'] },
         { name: 'Práctica prof. o de Investigación', reqs: [
-          'Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 
+          'Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología',
           'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología',
           'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'
         ] },
         { name: 'Materia Electiva/Práctica', reqs: [
-          'Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 
+          'Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología',
           'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología',
           'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'
         ] },
         { name: 'Materia Electiva III', reqs: [
-          'Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 
+          'Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología',
           'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología',
           'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'
         ] },
         { name: 'Materia Electiva IV', reqs: [
-          'Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 
+          'Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología',
           'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología',
           'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'
         ] },
@@ -279,97 +253,120 @@
 
     function checkRequirements(reqs) {
       if (!reqs || reqs.length === 0) return true;
-      return reqs.every(r => {
-        if (r === 'CBC') {
-          return data['CBC'].every(isCompleted);
-        } else {
-          return isCompleted(r);
-        }
-      });
+      return reqs.every(r => r === 'CBC' ? data['CBC'].every(isCompleted) : isCompleted(r));
     }
 
     function updateTesisProgress() {
       const tesis = data['Formación Profesional'].find(c => c.name === 'Requisito Tesis');
-      if (!tesis) {
-        document.getElementById('tesisProgress').textContent = '';
-        return;
-      }
       const total = tesis.reqs.length;
       const done = tesis.reqs.filter(isCompleted).length;
-      document.getElementById('tesisProgress').textContent = `Progreso hacia Tesis: ${done}/${total} materias completadas`;
+      const progress = document.createElement('div');
+      progress.className = 'progress';
+      progress.textContent = `Progreso hacia Tesis: ${done}/${total} materias completadas`;
+      document.body.insertBefore(progress, document.querySelector('.grid'));
     }
 
     function render() {
-      updateTesisProgress();
-      const container = document.getElementById('curriculum');
-      container.innerHTML = '';
+      const grid = document.createElement('div');
+      grid.className = 'grid';
 
       for (const [cycle, courses] of Object.entries(data)) {
         const col = document.createElement('div');
-        // Crear clase para la columna sin acentos y espacios convertidos
-        let className = cycle.toLowerCase()
-          .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-          .replace(/\s+/g, '-');
-        col.className = 'column ' + className;
-        col.innerHTML = `<h2>${cycle}</h2>`;
+        col.className = 'column';
+
+        const title = document.createElement('h2');
+        title.textContent = cycle;
+        col.appendChild(title);
 
         courses.forEach(course => {
           const name = typeof course === 'string' ? course : course.name;
           const reqs = typeof course === 'string' ? [] : course.reqs;
-          const isDone = isCompleted(name);
           const unlocked = checkRequirements(reqs);
+          const done = isCompleted(name);
 
           const div = document.createElement('div');
           div.className = 'course';
-          if (isDone) div.classList.add('completed');
+          if (done) div.classList.add('completed');
           if (!unlocked) div.classList.add('locked');
 
-          div.innerHTML = `${name}${isDone ? '<span class="checkmark">✓</span>' : ''}`;
+          div.textContent = name;
+
+          if (done) {
+            const check = document.createElement('span');
+            check.className = 'checkmark';
+            check.textContent = '✓';
+            div.appendChild(check);
+          }
 
           if (!unlocked && reqs.length) {
             const tooltip = document.createElement('span');
             tooltip.className = 'tooltip';
-            const unmet = reqs.filter(r => r === 'CBC' ? !data['CBC'].every(isCompleted) : !isCompleted(r));
-            tooltip.textContent = `Falta: ${unmet.join(', ')}`;
+            tooltip.textContent = 'Falta: ' + reqs.filter(r => r === 'CBC' ? !data['CBC'].every(isCompleted) : !isCompleted(r)).join(', ');
             div.appendChild(tooltip);
           }
 
           div.onclick = () => {
             if (!unlocked) return;
-            if (isDone) {
-              completed.splice(completed.indexOf(name), 1);
-            } else {
-              completed.push(name);
-            }
+            if (done) completed.splice(completed.indexOf(name), 1);
+            else completed.push(name);
             localStorage.setItem('completedCourses', JSON.stringify(completed));
-            render();
+            location.reload();
           };
 
           col.appendChild(div);
         });
 
-        container.appendChild(col);
+        grid.appendChild(col);
       }
+
+      document.body.appendChild(grid);
     }
 
-    function toggleDarkMode() {
+    function applyColorOverrides() {
+      const mode = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+      const root = document.documentElement;
+      const vars = ['bg-color', 'column-bg', 'primary-text', 'course-bg', 'completed-bg', 'locked-bg'];
+      vars.forEach(v => {
+        const saved = localStorage.getItem(`${mode}-${v}`);
+        if (saved) root.style.setProperty(`--${v}`, saved);
+      });
+    }
+
+    function saveCustomColors() {
+      const mode = document.getElementById('modeSelector').value;
+      const vars = ['bg-color', 'column-bg', 'primary-text', 'course-bg', 'completed-bg', 'locked-bg'];
+      vars.forEach(v => {
+        const color = document.getElementById(v).value;
+        localStorage.setItem(`${mode}-${v}`, color);
+      });
+      alert('Colores guardados');
+      location.reload();
+    }
+
+    function resetColors() {
+      const mode = document.getElementById('modeSelector').value;
+      const vars = ['bg-color', 'column-bg', 'primary-text', 'course-bg', 'completed-bg', 'locked-bg'];
+      vars.forEach(v => localStorage.removeItem(`${mode}-${v}`));
+      alert('Colores restablecidos');
+      location.reload();
+    }
+
+    document.getElementById('colorBtn').onclick = () => {
+      document.getElementById('colorPanel').style.display = 'flex';
+    };
+
+    document.getElementById('darkModeBtn').onclick = () => {
       document.body.classList.toggle('dark-mode');
       localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-      // Cambiar texto botón
-      const btn = document.getElementById('darkModeBtn');
-      btn.textContent = document.body.classList.contains('dark-mode') ? 'Modo claro' : 'Modo oscuro';
-    }
+      applyColorOverrides();
+    };
 
-    // Restaurar modo oscuro si estaba activado
     if (localStorage.getItem('darkMode') === 'true') {
       document.body.classList.add('dark-mode');
     }
 
-    // Ajustar texto botón al cargar
-    document.getElementById('darkModeBtn').textContent = document.body.classList.contains('dark-mode') ? 'Modo claro' : 'Modo oscuro';
-
-    document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
-
+    applyColorOverrides();
+    updateTesisProgress();
     render();
   </script>
 </body>

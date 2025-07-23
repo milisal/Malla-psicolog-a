@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Malla Curricular Psicología</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg-color: #fff6f8;
@@ -14,6 +14,7 @@
       --completed-bg: #e2f5e9;
       --locked-bg: #f8d2da;
       --tooltip-bg: #c94a63;
+      --check-color-light: #b3365c; /* rosa intenso claro */
     }
 
     body.dark-mode {
@@ -25,6 +26,7 @@
       --completed-bg: #4a5a4f;
       --locked-bg: #723244;
       --tooltip-bg: #ae3658;
+      --check-color-dark: #7a1839; /* bordo intenso oscuro */
     }
 
     body {
@@ -34,6 +36,11 @@
       padding: 20px;
       color: var(--primary-text);
       transition: background-color 0.3s ease, color 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding-top: 70px; /* espacio para botón fijo */
     }
 
     h1 {
@@ -43,8 +50,11 @@
     }
 
     .toggle-container {
-      text-align: center;
-      margin-bottom: 20px;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      margin-bottom: 0;
+      z-index: 1000;
     }
 
     .toggle-container button {
@@ -55,12 +65,18 @@
       border-radius: 999px;
       cursor: pointer;
       font-weight: 600;
+      transition: background-color 0.3s;
+    }
+
+    .toggle-container button:hover {
+      background-color: #a23650;
     }
 
     .progress {
       text-align: center;
       margin-bottom: 30px;
       font-size: 1rem;
+      font-weight: 600;
     }
 
     .grid {
@@ -68,6 +84,10 @@
       gap: 20px;
       overflow-x: auto;
       padding: 10px 0;
+      max-width: 1200px;
+      justify-content: center;
+      margin: 0 auto;
+      box-sizing: border-box;
     }
 
     .column {
@@ -77,6 +97,31 @@
       padding: 16px;
       min-width: 250px;
       border: 2px solid var(--border-color);
+      box-sizing: border-box;
+      color: var(--primary-text);
+      transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    }
+
+    /* Colores oscuros para columnas principales */
+    .column.cbc {
+      background-color: #d17a91;
+      border-color: #b74e69;
+      color: white;
+    }
+    .column.formacion-general {
+      background-color: #ca7891;
+      border-color: #a14663;
+      color: white;
+    }
+    .column.formacion-profesional {
+      background-color: #b66584;
+      border-color: #8d3a57;
+      color: white;
+    }
+    .column.requisitos-de-tesis {
+      background-color: #a45174;
+      border-color: #76284a;
+      color: white;
     }
 
     .column h2 {
@@ -96,19 +141,23 @@
       font-weight: 500;
       cursor: pointer;
       border: 1px solid var(--border-color);
-      transition: background 0.2s;
+      transition: background 0.2s, color 0.2s;
+      color: var(--primary-text);
+      user-select: none;
     }
 
     .course.completed {
       background-color: var(--completed-bg);
       text-decoration: line-through;
-      color: #24613c;
+      /* color del texto no cambia aquí para mantener contraste */
     }
 
     .course.locked {
       background-color: var(--locked-bg);
       opacity: 0.7;
       cursor: default;
+      color: #999;
+      border-color: #ccc;
     }
 
     .course .tooltip {
@@ -126,6 +175,7 @@
       transition: opacity 0.3s;
       font-size: 0.8rem;
       z-index: 10;
+      pointer-events: none;
     }
 
     .course:hover .tooltip {
@@ -136,15 +186,22 @@
     .checkmark {
       float: right;
       font-weight: bold;
-      color: #2e7d32;
+      user-select: none;
+      color: var(--check-color-light);
+      transition: color 0.3s;
+    }
+
+    body.dark-mode .checkmark {
+      color: var(--check-color-dark);
     }
   </style>
 </head>
 <body>
-  <h1>Malla Curricular – Lic. en Psicología</h1>
   <div class="toggle-container">
-    <button onclick="toggleDarkMode()">Alternar modo oscuro</button>
+    <button id="darkModeBtn">Alternar modo oscuro</button>
   </div>
+
+  <h1>Malla Curricular – Lic. en Psicología</h1>
   <div class="progress" id="tesisProgress"></div>
   <div class="grid" id="curriculum"></div>
 
@@ -181,10 +238,26 @@
         { name: 'CP y P. Clínica de Adultos', reqs: ['T. Y T de Explor. Diag. Ps. Mód II'] },
         { name: 'Psicología Jurídica', reqs: ['T. Y T de Explor. Diag. Ps. Mód II'] },
         { name: 'Psicoterapias', reqs: ['T. Y T de Explor. Diag. Ps. Mód II'] },
-        { name: 'Práctica prof. o de Investigación', reqs: ['Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología', 'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'] },
-        { name: 'Materia Electiva/Práctica', reqs: ['Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología', 'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'] },
-        { name: 'Materia Electiva III', reqs: ['Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología', 'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'] },
-        { name: 'Materia Electiva IV', reqs: ['Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología', 'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'] },
+        { name: 'Práctica prof. o de Investigación', reqs: [
+          'Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 
+          'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología',
+          'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'
+        ] },
+        { name: 'Materia Electiva/Práctica', reqs: [
+          'Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 
+          'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología',
+          'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'
+        ] },
+        { name: 'Materia Electiva III', reqs: [
+          'Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 
+          'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología',
+          'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'
+        ] },
+        { name: 'Materia Electiva IV', reqs: [
+          'Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 
+          'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología',
+          'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'
+        ] },
         { name: 'Requisito Tesis', reqs: [
           'Biología', 'Semiología', 'Psicología', 'Pensamiento científico', 'Matemática', 'Sociedad y Estado',
           'Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética',
@@ -217,6 +290,10 @@
 
     function updateTesisProgress() {
       const tesis = data['Formación Profesional'].find(c => c.name === 'Requisito Tesis');
+      if (!tesis) {
+        document.getElementById('tesisProgress').textContent = '';
+        return;
+      }
       const total = tesis.reqs.length;
       const done = tesis.reqs.filter(isCompleted).length;
       document.getElementById('tesisProgress').textContent = `Progreso hacia Tesis: ${done}/${total} materias completadas`;
@@ -229,7 +306,11 @@
 
       for (const [cycle, courses] of Object.entries(data)) {
         const col = document.createElement('div');
-        col.className = 'column';
+        // Crear clase para la columna sin acentos y espacios convertidos
+        let className = cycle.toLowerCase()
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+          .replace(/\s+/g, '-');
+        col.className = 'column ' + className;
         col.innerHTML = `<h2>${cycle}</h2>`;
 
         courses.forEach(course => {
@@ -274,12 +355,20 @@
     function toggleDarkMode() {
       document.body.classList.toggle('dark-mode');
       localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+      // Cambiar texto botón
+      const btn = document.getElementById('darkModeBtn');
+      btn.textContent = document.body.classList.contains('dark-mode') ? 'Modo claro' : 'Modo oscuro';
     }
 
     // Restaurar modo oscuro si estaba activado
     if (localStorage.getItem('darkMode') === 'true') {
       document.body.classList.add('dark-mode');
     }
+
+    // Ajustar texto botón al cargar
+    document.getElementById('darkModeBtn').textContent = document.body.classList.contains('dark-mode') ? 'Modo claro' : 'Modo oscuro';
+
+    document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
 
     render();
   </script>

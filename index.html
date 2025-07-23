@@ -70,10 +70,17 @@
       visibility: visible;
       opacity: 1;
     }
+  .progress {
+      text-align: center;
+      margin: 20px auto;
+      font-size: 1.1em;
+      color: #a0006d;
+    }
   </style>
 </head>
 <body>
   <h1>Malla Curricular - Lic. en Psicología</h1>
+  <div class="progress" id="tesisProgress"></div>
   <div class="grid" id="curriculum"></div>
   <script>
     const data = {
@@ -112,7 +119,16 @@
         { name: 'Materia Electiva/Práctica', reqs: ['Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología', 'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'] },
         { name: 'Materia Electiva III', reqs: ['Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología', 'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'] },
         { name: 'Materia Electiva IV', reqs: ['Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología', 'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'] },
-        { name: 'Requisito Tesis', reqs: ['ALL'] }
+        { name: 'Requisito Tesis', reqs: [
+          'Biología', 'Semiología', 'Psicología', 'Pensamiento científico', 'Matemática', 'Sociedad y Estado',
+          'Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética',
+          'Neurofisiología', 'Historia de la Psicología', 'Metodología de la Investigación', 'Salud Pública y Mental',
+          'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología',
+          'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Materia Electiva I',
+          'Requisito Idioma', 'Materia Electiva II', 'Ps. Ética y DDHH', 'Psicología Educacional', 'Psicología Institucional',
+          'Psicología del Trabajo', 'CP y P. Clínica de Adultos', 'Psicología Jurídica', 'Psicoterapias',
+          'Práctica prof. o de Investigación', 'Materia Electiva/Práctica', 'Materia Electiva III', 'Materia Electiva IV'
+        ] }
       ]
     };
 
@@ -141,6 +157,7 @@
     }
 
     function render() {
+      updateTesisProgress();
       document.getElementById('curriculum').innerHTML = '';
       for (const [cycle, courses] of Object.entries(data)) {
         const col = document.createElement('div');
@@ -178,7 +195,17 @@
               completed.push(name);
             }
             localStorage.setItem('completedCourses', JSON.stringify(completed));
+            updateTesisProgress();
             render();
+
+    function updateTesisProgress() {
+      const tesisCourse = data['Formación Profesional'].find(c => c.name === 'Requisito Tesis');
+      if (!tesisCourse) return;
+      const total = tesisCourse.reqs.length;
+      const done = tesisCourse.reqs.filter(isCompleted).length;
+      const container = document.getElementById('tesisProgress');
+      container.textContent = `Progreso hacia Tesis: ${done}/${total} materias completadas`;
+    }
           };
 
           col.appendChild(div);

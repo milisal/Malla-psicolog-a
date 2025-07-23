@@ -3,85 +3,146 @@
 <head>
   <meta charset="UTF-8" />
   <title>Malla Curricular Psicología</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --color-bg: #fff8fb;
+      --color-primary: #c71585;
+      --color-primary-light: #f4c1d9;
+      --color-accent: #a0006d;
+      --color-completed-bg: #d4edda;
+      --color-locked-bg: #f8d7da;
+      --color-course-bg: #ffcce5;
+    }
+
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #ffe6f0;
+      font-family: 'Roboto', sans-serif;
+      background: var(--color-bg);
       margin: 0;
       padding: 20px;
-      color: #333;
+      color: #444;
     }
+
     h1 {
       text-align: center;
-      color: #c71585;
+      color: var(--color-primary);
+      font-weight: 700;
+      margin-bottom: 30px;
     }
+
+    .progress {
+      text-align: center;
+      margin: 20px auto 40px;
+      font-size: 1.2em;
+      color: var(--color-accent);
+      font-weight: 600;
+    }
+
     .grid {
-      display: flex;
-      overflow-x: auto;
-      gap: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
       padding: 10px;
     }
+
     .column {
-      background: #fff0f5;
-      border: 2px solid #f8a8d3;
-      border-radius: 10px;
-      padding: 10px;
-      min-width: 250px;
+      background: #fff;
+      border-radius: 15px;
+      padding: 15px;
+      box-shadow: 0 4px 8px rgb(199 21 133 / 0.2);
+      border: 2px solid var(--color-primary-light);
     }
+
     .column h2 {
       text-align: center;
-      color: #d63384;
+      color: var(--color-primary);
+      margin-bottom: 15px;
+      font-weight: 600;
+      font-size: 1.3em;
     }
+
     .course {
-      background: #ffcce5;
-      border: 1px solid #f397c2;
-      border-radius: 10px;
-      padding: 10px;
-      margin: 5px 0;
+      background: var(--color-course-bg);
+      border-radius: 12px;
+      padding: 12px 15px;
+      margin: 8px 0;
       cursor: pointer;
       position: relative;
+      box-shadow: 0 2px 6px rgb(243 151 194 / 0.4);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
+
+    .course:hover:not(.locked):not(.completed) {
+      background-color: var(--color-primary-light);
+      box-shadow: 0 4px 12px rgb(199 21 133 / 0.4);
+    }
+
     .course.locked {
-      background: #f8d7da;
-      cursor: not-allowed;
-      opacity: 0.6;
+      background-color: var(--color-locked-bg);
+      cursor: default;
+      opacity: 0.7;
+      box-shadow: none;
     }
+
     .course.completed {
-      background: #d4edda;
+      background-color: var(--color-completed-bg);
       text-decoration: line-through;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgb(21 133 70 / 0.3);
     }
+
+    .course .checkmark {
+      color: #2e7d32;
+      font-weight: bold;
+      font-size: 1.2em;
+      margin-left: 10px;
+    }
+
     .tooltip {
       visibility: hidden;
       background-color: #555;
       color: #fff;
       text-align: center;
-      border-radius: 5px;
-      padding: 5px;
+      border-radius: 6px;
+      padding: 6px 10px;
       position: absolute;
-      z-index: 1;
+      z-index: 10;
       bottom: 125%;
       left: 50%;
-      margin-left: -60px;
+      transform: translateX(-50%);
       opacity: 0;
-      transition: opacity 0.3s;
-      width: 120px;
+      transition: opacity 0.3s ease;
+      width: max-content;
+      max-width: 200px;
+      font-size: 0.85em;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
     }
+
+    .tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -6px;
+      border-width: 6px;
+      border-style: solid;
+      border-color: #555 transparent transparent transparent;
+    }
+
     .course:hover .tooltip {
       visibility: visible;
       opacity: 1;
-    }
-    .progress {
-      text-align: center;
-      margin: 20px auto;
-      font-size: 1.1em;
-      color: #a0006d;
     }
   </style>
 </head>
 <body>
   <h1>Malla Curricular - Lic. en Psicología</h1>
-  <div class="progress" id="tesisProgress"></div>
+  <div class="progress" id="tesisProgress">Progreso hacia Tesis: 0/0 materias completadas</div>
   <div class="grid" id="curriculum"></div>
+
   <script>
     const data = {
       'CBC': [
@@ -115,10 +176,10 @@
         { name: 'CP y P. Clínica de Adultos', reqs: ['T. Y T de Explor. Diag. Ps. Mód II'] },
         { name: 'Psicología Jurídica', reqs: ['T. Y T de Explor. Diag. Ps. Mód II'] },
         { name: 'Psicoterapias', reqs: ['T. Y T de Explor. Diag. Ps. Mód II'] },
-        { name: 'Práctica prof. o de Investigación', reqs: ['Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología', 'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'] },
-        { name: 'Materia Electiva/Práctica', reqs: ['Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología', 'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'] },
-        { name: 'Materia Electiva III', reqs: ['Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología', 'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'] },
-        { name: 'Materia Electiva IV', reqs: ['Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología', 'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'] },
+        { name: 'Práctica prof. o de Investigación', reqs: ['Psicología General','Estadística','Psicología Social','Psicoanálisis Freud','Psic. Y Epist. Genética','Neurofisiología','Historia de la Psicología','Metodología de la Investigación','Salud Pública y Mental','Teoría y Técnica de Grupos','Ps. Evolutiva Niñez','Ps. Evolutiva Adolescencia','Psicopatología','T. Y T de Explor. Diag. Ps. Mód I','T. Y T de Explor. Diag. Ps. Mód II','Requisito Idioma'] },
+        { name: 'Materia Electiva/Práctica', reqs: ['Psicología General','Estadística','Psicología Social','Psicoanálisis Freud','Psic. Y Epist. Genética','Neurofisiología','Historia de la Psicología','Metodología de la Investigación','Salud Pública y Mental','Teoría y Técnica de Grupos','Ps. Evolutiva Niñez','Ps. Evolutiva Adolescencia','Psicopatología','T. Y T de Explor. Diag. Ps. Mód I','T. Y T de Explor. Diag. Ps. Mód II','Requisito Idioma'] },
+        { name: 'Materia Electiva III', reqs: ['Psicología General','Estadística','Psicología Social','Psicoanálisis Freud','Psic. Y Epist. Genética','Neurofisiología','Historia de la Psicología','Metodología de la Investigación','Salud Pública y Mental','Teoría y Técnica de Grupos','Ps. Evolutiva Niñez','Ps. Evolutiva Adolescencia','Psicopatología','T. Y T de Explor. Diag. Ps. Mód I','T. Y T de Explor. Diag. Ps. Mód II','Requisito Idioma'] },
+        { name: 'Materia Electiva IV', reqs: ['Psicología General','Estadística','Psicología Social','Psicoanálisis Freud','Psic. Y Epist. Genética','Neurofisiología','Historia de la Psicología','Metodología de la Investigación','Salud Pública y Mental','Teoría y Técnica de Grupos','Ps. Evolutiva Niñez','Ps. Evolutiva Adolescencia','Psicopatología','T. Y T de Explor. Diag. Ps. Mód I','T. Y T de Explor. Diag. Ps. Mód II','Requisito Idioma'] },
         { name: 'Requisito Tesis', reqs: [
           'Biología', 'Semiología', 'Psicología', 'Pensamiento científico', 'Matemática', 'Sociedad y Estado',
           'Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética',
@@ -143,13 +204,6 @@
       return reqs.every(r => {
         if (r === 'CBC') {
           return data['CBC'].every(isCompleted);
-        } else if (r === 'ALL') {
-          let allCourses = [];
-          Object.values(data).flat().forEach(c => {
-            if (typeof c === 'string') allCourses.push(c);
-            else allCourses.push(c.name);
-          });
-          return allCourses.every(isCompleted);
         } else {
           return isCompleted(r);
         }
@@ -157,21 +211,21 @@
     }
 
     function updateTesisProgress() {
-      const tesisCourse = data['Formación Profesional'].find(c => c.name === 'Requisito Tesis');
-      if (!tesisCourse) return;
-      const total = tesisCourse.reqs.length;
-      const done = tesisCourse.reqs.filter(isCompleted).length;
-      const container = document.getElementById('tesisProgress');
-      container.textContent = `Progreso hacia Tesis: ${done}/${total} materias completadas`;
+      const tesis = data['Formación Profesional'].find(c => c.name === 'Requisito Tesis');
+      const total = tesis.reqs.length;
+      const done = tesis.reqs.filter(isCompleted).length;
+      document.getElementById('tesisProgress').textContent = `Progreso hacia Tesis: ${done}/${total} materias completadas`;
     }
 
     function render() {
       updateTesisProgress();
-      document.getElementById('curriculum').innerHTML = '';
+      const container = document.getElementById('curriculum');
+      container.innerHTML = '';
       for (const [cycle, courses] of Object.entries(data)) {
         const col = document.createElement('div');
         col.className = 'column';
         col.innerHTML = `<h2>${cycle}</h2>`;
+
         courses.forEach(course => {
           const name = typeof course === 'string' ? course : course.name;
           const reqs = typeof course === 'string' ? [] : course.reqs;
@@ -181,19 +235,25 @@
           const div = document.createElement('div');
           div.className = 'course';
           if (isDone) div.classList.add('completed');
-          else if (!unlocked) div.classList.add('locked');
+          if (!unlocked) div.classList.add('locked');
 
-          div.textContent = name;
+          const label = document.createElement('span');
+          label.textContent = name;
+          div.appendChild(label);
+
+          if (isDone) {
+            const check = document.createElement('span');
+            check.className = 'checkmark';
+            check.textContent = '✓';
+            div.appendChild(check);
+          }
+
           if (!unlocked && reqs.length) {
-            const tip = document.createElement('span');
-            tip.className = 'tooltip';
-            const unmet = reqs.filter(r => {
-              if (r === 'CBC') return !data['CBC'].every(isCompleted);
-              if (r === 'ALL') return false;
-              return !isCompleted(r);
-            });
-            tip.textContent = `Falta: ${unmet.join(', ')}`;
-            div.appendChild(tip);
+            const tooltip = document.createElement('span');
+            tooltip.className = 'tooltip';
+            const unmet = reqs.filter(r => r === 'CBC' ? !data['CBC'].every(isCompleted) : !isCompleted(r));
+            tooltip.textContent = `Falta: ${unmet.join(', ')}`;
+            div.appendChild(tooltip);
           }
 
           div.onclick = () => {
@@ -209,7 +269,8 @@
 
           col.appendChild(div);
         });
-        document.getElementById('curriculum').appendChild(col);
+
+        container.appendChild(col);
       }
     }
 

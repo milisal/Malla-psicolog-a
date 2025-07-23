@@ -203,9 +203,7 @@
     <label>Color columnas:<input type="color" id="columnBgPicker"></label><br>
     <label>Color texto:<input type="color" id="textColorPicker"></label>
   </div>
-
-  <script src="js/data.js"></script>
-  <script src="js/app.js"></script>
+  
   <script>
     document.getElementById("colorBtn").addEventListener("click", () => {
       const panel = document.getElementById("colorControls");
@@ -224,7 +222,6 @@
       document.documentElement.style.setProperty('--primary-text', e.target.value);
     });
 
-  <script>
     const data = {
       'CBC': [
         'Biología', 'Semiología', 'Psicología', 'Pensamiento científico', 'Matemática', 'Sociedad y Estado'
@@ -389,4 +386,4 @@ document.getElementById('darkModeBtn').textContent =
 document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
 
 render();
-    
+  </Script>

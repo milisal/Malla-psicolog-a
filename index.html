@@ -1,146 +1,151 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Malla Curricular Psicología</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --color-bg: #fff8fb;
-      --color-primary: #c71585;
-      --color-primary-light: #f4c1d9;
-      --color-accent: #a0006d;
-      --color-completed-bg: #d4edda;
-      --color-locked-bg: #f8d7da;
-      --color-course-bg: #ffcce5;
+      --bg-color: #fff6f8;
+      --column-bg: #ffeef4;
+      --border-color: #e7b6c7;
+      --primary-text: #78244c;
+      --course-bg: #fbdde7;
+      --completed-bg: #e2f5e9;
+      --locked-bg: #f8d2da;
+      --tooltip-bg: #c94a63;
+    }
+
+    body.dark-mode {
+      --bg-color: #3b0a28;
+      --column-bg: #4d0f35;
+      --border-color: #72254c;
+      --primary-text: #ffeaf3;
+      --course-bg: #7c2947;
+      --completed-bg: #4a5a4f;
+      --locked-bg: #723244;
+      --tooltip-bg: #ae3658;
     }
 
     body {
-      font-family: 'Roboto', sans-serif;
-      background: var(--color-bg);
       margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
       padding: 20px;
-      color: #444;
+      color: var(--primary-text);
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     h1 {
       text-align: center;
-      color: var(--color-primary);
-      font-weight: 700;
-      margin-bottom: 30px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .toggle-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .toggle-container button {
+      padding: 8px 16px;
+      background-color: var(--tooltip-bg);
+      color: white;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
     }
 
     .progress {
       text-align: center;
-      margin: 20px auto 40px;
-      font-size: 1.2em;
-      color: var(--color-accent);
-      font-weight: 600;
+      margin-bottom: 30px;
+      font-size: 1rem;
     }
 
     .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 25px;
-      padding: 10px;
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      padding: 10px 0;
     }
 
     .column {
-      background: #fff;
-      border-radius: 15px;
-      padding: 15px;
-      box-shadow: 0 4px 8px rgb(199 21 133 / 0.2);
-      border: 2px solid var(--color-primary-light);
+      flex: 0 0 auto;
+      background-color: var(--column-bg);
+      border-radius: 16px;
+      padding: 16px;
+      min-width: 250px;
+      border: 2px solid var(--border-color);
     }
 
     .column h2 {
       text-align: center;
-      color: var(--color-primary);
-      margin-bottom: 15px;
+      font-size: 1.1rem;
       font-weight: 600;
-      font-size: 1.3em;
+      margin-bottom: 12px;
     }
 
     .course {
-      background: var(--color-course-bg);
+      background-color: var(--course-bg);
       border-radius: 12px;
-      padding: 12px 15px;
+      padding: 10px;
       margin: 8px 0;
-      cursor: pointer;
       position: relative;
-      box-shadow: 0 2px 6px rgb(243 151 194 / 0.4);
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .course:hover:not(.locked):not(.completed) {
-      background-color: var(--color-primary-light);
-      box-shadow: 0 4px 12px rgb(199 21 133 / 0.4);
-    }
-
-    .course.locked {
-      background-color: var(--color-locked-bg);
-      cursor: default;
-      opacity: 0.7;
-      box-shadow: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      transition: background 0.2s;
     }
 
     .course.completed {
-      background-color: var(--color-completed-bg);
+      background-color: var(--completed-bg);
       text-decoration: line-through;
-      cursor: pointer;
-      box-shadow: 0 2px 6px rgb(21 133 70 / 0.3);
+      color: #24613c;
     }
 
-    .course .checkmark {
-      color: #2e7d32;
-      font-weight: bold;
-      font-size: 1.2em;
-      margin-left: 10px;
+    .course.locked {
+      background-color: var(--locked-bg);
+      opacity: 0.7;
+      cursor: default;
     }
 
-    .tooltip {
+    .course .tooltip {
       visibility: hidden;
-      background-color: #555;
-      color: #fff;
-      text-align: center;
-      border-radius: 6px;
-      padding: 6px 10px;
+      opacity: 0;
+      background-color: var(--tooltip-bg);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 999px;
       position: absolute;
-      z-index: 10;
       bottom: 125%;
       left: 50%;
       transform: translateX(-50%);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      width: max-content;
-      max-width: 200px;
-      font-size: 0.85em;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-    }
-
-    .tooltip::after {
-      content: '';
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      margin-left: -6px;
-      border-width: 6px;
-      border-style: solid;
-      border-color: #555 transparent transparent transparent;
+      white-space: nowrap;
+      transition: opacity 0.3s;
+      font-size: 0.8rem;
+      z-index: 10;
     }
 
     .course:hover .tooltip {
       visibility: visible;
       opacity: 1;
     }
+
+    .checkmark {
+      float: right;
+      font-weight: bold;
+      color: #2e7d32;
+    }
   </style>
 </head>
 <body>
-  <h1>Malla Curricular - Lic. en Psicología</h1>
-  <div class="progress" id="tesisProgress">Progreso hacia Tesis: 0/0 materias completadas</div>
+  <h1>Malla Curricular – Lic. en Psicología</h1>
+  <div class="toggle-container">
+    <button onclick="toggleDarkMode()">Alternar modo oscuro</button>
+  </div>
+  <div class="progress" id="tesisProgress"></div>
   <div class="grid" id="curriculum"></div>
 
   <script>
@@ -176,10 +181,10 @@
         { name: 'CP y P. Clínica de Adultos', reqs: ['T. Y T de Explor. Diag. Ps. Mód II'] },
         { name: 'Psicología Jurídica', reqs: ['T. Y T de Explor. Diag. Ps. Mód II'] },
         { name: 'Psicoterapias', reqs: ['T. Y T de Explor. Diag. Ps. Mód II'] },
-        { name: 'Práctica prof. o de Investigación', reqs: ['Psicología General','Estadística','Psicología Social','Psicoanálisis Freud','Psic. Y Epist. Genética','Neurofisiología','Historia de la Psicología','Metodología de la Investigación','Salud Pública y Mental','Teoría y Técnica de Grupos','Ps. Evolutiva Niñez','Ps. Evolutiva Adolescencia','Psicopatología','T. Y T de Explor. Diag. Ps. Mód I','T. Y T de Explor. Diag. Ps. Mód II','Requisito Idioma'] },
-        { name: 'Materia Electiva/Práctica', reqs: ['Psicología General','Estadística','Psicología Social','Psicoanálisis Freud','Psic. Y Epist. Genética','Neurofisiología','Historia de la Psicología','Metodología de la Investigación','Salud Pública y Mental','Teoría y Técnica de Grupos','Ps. Evolutiva Niñez','Ps. Evolutiva Adolescencia','Psicopatología','T. Y T de Explor. Diag. Ps. Mód I','T. Y T de Explor. Diag. Ps. Mód II','Requisito Idioma'] },
-        { name: 'Materia Electiva III', reqs: ['Psicología General','Estadística','Psicología Social','Psicoanálisis Freud','Psic. Y Epist. Genética','Neurofisiología','Historia de la Psicología','Metodología de la Investigación','Salud Pública y Mental','Teoría y Técnica de Grupos','Ps. Evolutiva Niñez','Ps. Evolutiva Adolescencia','Psicopatología','T. Y T de Explor. Diag. Ps. Mód I','T. Y T de Explor. Diag. Ps. Mód II','Requisito Idioma'] },
-        { name: 'Materia Electiva IV', reqs: ['Psicología General','Estadística','Psicología Social','Psicoanálisis Freud','Psic. Y Epist. Genética','Neurofisiología','Historia de la Psicología','Metodología de la Investigación','Salud Pública y Mental','Teoría y Técnica de Grupos','Ps. Evolutiva Niñez','Ps. Evolutiva Adolescencia','Psicopatología','T. Y T de Explor. Diag. Ps. Mód I','T. Y T de Explor. Diag. Ps. Mód II','Requisito Idioma'] },
+        { name: 'Práctica prof. o de Investigación', reqs: ['Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología', 'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'] },
+        { name: 'Materia Electiva/Práctica', reqs: ['Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología', 'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'] },
+        { name: 'Materia Electiva III', reqs: ['Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología', 'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'] },
+        { name: 'Materia Electiva IV', reqs: ['Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética', 'Neurofisiología', 'Historia de la Psicología', 'Metodología de la Investigación', 'Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Niñez', 'Ps. Evolutiva Adolescencia', 'Psicopatología', 'T. Y T de Explor. Diag. Ps. Mód I', 'T. Y T de Explor. Diag. Ps. Mód II', 'Requisito Idioma'] },
         { name: 'Requisito Tesis', reqs: [
           'Biología', 'Semiología', 'Psicología', 'Pensamiento científico', 'Matemática', 'Sociedad y Estado',
           'Psicología General', 'Estadística', 'Psicología Social', 'Psicoanálisis Freud', 'Psic. Y Epist. Genética',
@@ -221,6 +226,7 @@
       updateTesisProgress();
       const container = document.getElementById('curriculum');
       container.innerHTML = '';
+
       for (const [cycle, courses] of Object.entries(data)) {
         const col = document.createElement('div');
         col.className = 'column';
@@ -237,16 +243,7 @@
           if (isDone) div.classList.add('completed');
           if (!unlocked) div.classList.add('locked');
 
-          const label = document.createElement('span');
-          label.textContent = name;
-          div.appendChild(label);
-
-          if (isDone) {
-            const check = document.createElement('span');
-            check.className = 'checkmark';
-            check.textContent = '✓';
-            div.appendChild(check);
-          }
+          div.innerHTML = `${name}${isDone ? '<span class="checkmark">✓</span>' : ''}`;
 
           if (!unlocked && reqs.length) {
             const tooltip = document.createElement('span');
@@ -272,6 +269,16 @@
 
         container.appendChild(col);
       }
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+    }
+
+    // Restaurar modo oscuro si estaba activado
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
     }
 
     render();

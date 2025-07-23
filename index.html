@@ -123,20 +123,21 @@
     }
 
     function checkRequirements(reqs) {
-      if (!reqs) return true;
-      if (reqs.includes('CBC')) {
-        const cbcCourses = data['CBC'];
-        if (!cbcCourses.every(isCompleted)) return false;
-      }
-      if (reqs.includes('ALL')) {
-        let allCourses = [];
-        Object.values(data).flat().forEach(c => {
-          if (typeof c === 'string') allCourses.push(c);
-          else allCourses.push(c.name);
-        });
-        return allCourses.every(isCompleted);
-      }
-      return reqs.every(isCompleted);
+      if (!reqs || reqs.length === 0) return true;
+      return reqs.every(r => {
+        if (r === 'CBC') {
+          return data['CBC'].every(isCompleted);
+        } else if (r === 'ALL') {
+          let allCourses = [];
+          Object.values(data).flat().forEach(c => {
+            if (typeof c === 'string') allCourses.push(c);
+            else allCourses.push(c.name);
+          });
+          return allCourses.every(isCompleted);
+        } else {
+          return isCompleted(r);
+        }
+      });
     }
 
     function render() {
@@ -160,13 +161,17 @@
           if (!unlocked && reqs.length) {
             const tip = document.createElement('span');
             tip.className = 'tooltip';
-            const unmet = reqs.filter(r => r === 'CBC' ? !data['CBC'].every(isCompleted) : r === 'ALL' ? false : !isCompleted(r));
+            const unmet = reqs.filter(r => {
+              if (r === 'CBC') return !data['CBC'].every(isCompleted);
+              if (r === 'ALL') return false;
+              return !isCompleted(r);
+            });
             tip.textContent = `Falta: ${unmet.join(', ')}`;
             div.appendChild(tip);
           }
 
           div.onclick = () => {
-            if (!unlocked) return;
+            if (!unlocked && !reqs.includes('CBC')) return;
             if (isDone) {
               completed.splice(completed.indexOf(name), 1);
             } else {

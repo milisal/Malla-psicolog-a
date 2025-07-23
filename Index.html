@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Malla Curricular Psicología</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #ffe6f0;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #c71585;
+    }
+    .grid {
+      display: flex;
+      overflow-x: auto;
+      gap: 20px;
+      padding: 10px;
+    }
+    .column {
+      background: #fff0f5;
+      border: 2px solid #f8a8d3;
+      border-radius: 10px;
+      padding: 10px;
+      min-width: 250px;
+    }
+    .column h2 {
+      text-align: center;
+      color: #d63384;
+    }
+    .course {
+      background: #ffcce5;
+      border: 1px solid #f397c2;
+      border-radius: 10px;
+      padding: 10px;
+      margin: 5px 0;
+      cursor: pointer;
+      position: relative;
+    }
+    .course.locked {
+      background: #f8d7da;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    .course.completed {
+      background: #d4edda;
+      text-decoration: line-through;
+    }
+    .tooltip {
+      visibility: hidden;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      border-radius: 5px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -60px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      width: 120px;
+    }
+    .course:hover .tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1>Malla Curricular - Lic. en Psicología</h1>
+  <div class="grid" id="curriculum"></div>
+  <script>
+    const data = {
+      'CBC': [
+        'Biología', 'Semiología', 'Psicología', 'Pensamiento científico', 'Matemática', 'Sociedad y Estado'
+      ],
+      'Formación General': [
+        { name: 'Psicología General', reqs: ['CBC'] },
+        { name: 'Estadística', reqs: ['CBC'] },
+        { name: 'Psicología Social', reqs: ['CBC'] },
+        { name: 'Psicoanálisis Freud', reqs: ['CBC'] },
+        { name: 'Psic. Y Epist. Genética', reqs: ['CBC'] },
+        { name: 'Neurofisiología', reqs: ['CBC'] },
+        { name: 'Historia de la Psicología', reqs: ['Psicología General'] },
+        { name: 'Metodología de la Investigación', reqs: ['Psicología General', 'Estadística'] },
+        { name: 'Salud Pública y Mental', reqs: ['Psicología Social', 'Metodología de la Investigación'] },
+        { name: 'Teoría y Técnica de Grupos', reqs: ['Psicología Social', 'Psicoanálisis Freud'] },
+        { name: 'Ps. Evolutiva Niñez', reqs: ['Psicoanálisis Freud', 'Psic. Y Epist. Genética'] },
+        { name: 'Ps. Evolutiva Adolescencia', reqs: ['Ps. Evolutiva Niñez'] },
+        { name: 'Psicopatología', reqs: ['Neurofisiología', 'Ps. Evolutiva Adolescencia'] },
+        { name: 'T. Y T de Explor. Diag. Ps. Mód I', reqs: ['Metodología de la Investigación', 'Psicopatología'] },
+        { name: 'T. Y T de Explor. Diag. Ps. Mód II', reqs: ['T. Y T de Explor. Diag. Ps. Mód I'] },
+        { name: 'Materia Electiva' },
+        { name: 'Requisito Idioma', reqs: ['Psicología General', 'Psicoanálisis Freud'] },
+        { name: 'Materia Electiva' }
+      ],
+      'Formación Profesional': [
+        { name: 'Ps. Ética y DDHH', reqs: ['Psicología Social', 'Historia de la Psicología'] },
+        { name: 'Psicología Educacional', reqs: ['Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'Ps. Evolutiva Adolescencia'] },
+        { name: 'Psicología Institucional', reqs: ['Salud Pública y Mental', 'Teoría y Técnica de Grupos'] },
+        { name: 'Psicología del Trabajo', reqs: ['Salud Pública y Mental', 'Teoría y Técnica de Grupos', 'T. Y T de Explor. Diag. Ps. Mód II'] },
+        { name: 'CP y P. Clínica de Adultos', reqs: ['T. Y T de Explor. Diag. Ps. Mód II'] },
+        { name: 'Psicología Jurídica', reqs: ['T. Y T de Explor. Diag. Ps. Mód II'] },
+        { name: 'Psicoterapias', reqs: ['T. Y T de Explor. Diag. Ps. Mód II'] },
+        { name: 'Práctica prof. o de Investigación' },
+        { name: 'Materia Electiva/Práctica' },
+        { name: 'Materia Electiva' },
+        { name: 'Materia Electiva' },
+        { name: 'Requisito Tesis', reqs: ['ALL'] }
+      ]
+    };
+
+    const completed = JSON.parse(localStorage.getItem('completedCourses') || '[]');
+
+    function isCompleted(name) {
+      return completed.includes(name);
+    }
+
+    function checkRequirements(reqs) {
+      if (!reqs) return true;
+      if (reqs.includes('CBC')) {
+        const cbcCourses = data['CBC'];
+        if (!cbcCourses.every(isCompleted)) return false;
+      }
+      if (reqs.includes('ALL')) {
+        let allCourses = [];
+        Object.values(data).flat().forEach(c => {
+          if (typeof c === 'string') allCourses.push(c);
+          else allCourses.push(c.name);
+        });
+        return allCourses.every(isCompleted);
+      }
+      return reqs.every(isCompleted);
+    }
+
+    function render() {
+      document.getElementById('curriculum').innerHTML = '';
+      for (const [cycle, courses] of Object.entries(data)) {
+        const col = document.createElement('div');
+        col.className = 'column';
+        col.innerHTML = `<h2>${cycle}</h2>`;
+        courses.forEach(course => {
+          const name = typeof course === 'string' ? course : course.name;
+          const reqs = typeof course === 'string' ? [] : course.reqs;
+          const isDone = isCompleted(name);
+          const unlocked = checkRequirements(reqs);
+
+          const div = document.createElement('div');
+          div.className = 'course';
+          if (isDone) div.classList.add('completed');
+          else if (!unlocked) div.classList.add('locked');
+
+          div.textContent = name;
+          if (!unlocked && reqs.length) {
+            const tip = document.createElement('span');
+            tip.className = 'tooltip';
+            const unmet = reqs.filter(r => r === 'CBC' ? !data['CBC'].every(isCompleted) : r === 'ALL' ? false : !isCompleted(r));
+            tip.textContent = `Falta: ${unmet.join(', ')}`;
+            div.appendChild(tip);
+          }
+
+          div.onclick = () => {
+            if (!unlocked) return;
+            if (isDone) {
+              completed.splice(completed.indexOf(name), 1);
+            } else {
+              completed.push(name);
+            }
+            localStorage.setItem('completedCourses', JSON.stringify(completed));
+            render();
+          };
+
+          col.appendChild(div);
+        });
+        document.getElementById('curriculum').appendChild(col);
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>

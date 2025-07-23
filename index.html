@@ -33,14 +33,13 @@
       margin: 0;
       font-family: 'Inter', sans-serif;
       background-color: var(--bg-color);
-      padding: 20px;
       color: var(--primary-text);
       transition: background-color 0.3s ease, color 0.3s ease;
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding-top: 70px;
+      padding: 70px 20px 20px;
     }
 
     h1 {
@@ -186,58 +185,38 @@
 
     body.dark-mode .checkmark {
       color: var(--check-color-dark);
-      .color-panel {
-  position: fixed;
-  top: 80px;
-  right: 20px;
-  background-color: var(--column-bg);
-  color: var(--primary-text);
-  border: 2px solid var(--border-color);
-  border-radius: 16px;
-  padding: 16px;
-  z-index: 1000;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  display: none;
-  width: 260px;
-  font-size: 0.9rem;
-}
-
-.color-panel label {
-  display: block;
-  margin: 8px 0;
-}
-
-.color-panel h3 {
-  margin-top: 0;
-  font-size: 1.1rem;
-  text-align: center;
-}
-      
     }
   </style>
 </head>
 <body>
   <div class="toggle-container">
     <button id="darkModeBtn">Alternar modo oscuro</button>
-    <button id="colorBtn">🎨 Personalizar colores</button>
   </div>
   <h1>Malla Curricular – Lic. en Psicología</h1>
   <div class="progress" id="tesisProgress"></div>
   <div class="grid" id="curriculum"></div>
 
-<div id="colorControls" class="color-panel">
-  <h3>🎨 Personalizar colores</h3>
-  <label><strong>Modo claro</strong></label>
-  <label>Fondo: <input type="color" id="bgColorPicker"></label>
-  <label>Columnas: <input type="color" id="columnBgPicker"></label>
-  <label>Texto: <input type="color" id="textColorPicker"></label>
-  <hr>
-  <label><strong>Modo oscuro</strong></label>
-  <label>Fondo: <input type="color" id="bgDarkColorPicker"></label>
-  <label>Columnas: <input type="color" id="columnDarkBgPicker"></label>
-  <label>Texto: <input type="color" id="textDarkColorPicker"></label>
-</div>
-  
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+      document.getElementById('darkModeBtn').textContent =
+        document.body.classList.contains('dark-mode') ? 'Modo claro' : 'Modo oscuro';
+    }
+
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+    }
+
+    document.getElementById('darkModeBtn').textContent =
+      document.body.classList.contains('dark-mode') ? 'Modo claro' : 'Modo oscuro';
+
+    document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
+  </script>
+</body>
+</html> 
   <script> 
   const panel = document.getElementById("colorControls");
 

@@ -70,7 +70,7 @@
       visibility: visible;
       opacity: 1;
     }
-  .progress {
+    .progress {
       text-align: center;
       margin: 20px auto;
       font-size: 1.1em;
@@ -156,6 +156,15 @@
       });
     }
 
+    function updateTesisProgress() {
+      const tesisCourse = data['Formación Profesional'].find(c => c.name === 'Requisito Tesis');
+      if (!tesisCourse) return;
+      const total = tesisCourse.reqs.length;
+      const done = tesisCourse.reqs.filter(isCompleted).length;
+      const container = document.getElementById('tesisProgress');
+      container.textContent = `Progreso hacia Tesis: ${done}/${total} materias completadas`;
+    }
+
     function render() {
       updateTesisProgress();
       document.getElementById('curriculum').innerHTML = '';
@@ -195,17 +204,7 @@
               completed.push(name);
             }
             localStorage.setItem('completedCourses', JSON.stringify(completed));
-            updateTesisProgress();
             render();
-
-    function updateTesisProgress() {
-      const tesisCourse = data['Formación Profesional'].find(c => c.name === 'Requisito Tesis');
-      if (!tesisCourse) return;
-      const total = tesisCourse.reqs.length;
-      const done = tesisCourse.reqs.filter(isCompleted).length;
-      const container = document.getElementById('tesisProgress');
-      container.textContent = `Progreso hacia Tesis: ${done}/${total} materias completadas`;
-    }
           };
 
           col.appendChild(div);
